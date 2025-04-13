@@ -14,22 +14,6 @@ yarn add mcp-express-adapter@latest
 pnpm add mcp-express-adapter@latest
 ```
 
-## Installing from GitHub Packages
-
-You can also install this package from GitHub Packages:
-
-```bash
-# Create or edit .npmrc in your project
-echo "registry=https://npm.pkg.github.com/moe03" > .npmrc
-
-# Install the package
-npm install mcp-express-adapter@latest
-# or
-yarn add mcp-express-adapter@latest
-# or
-pnpm add mcp-express-adapter@latest
-```
-
 Note: You'll need to authenticate to GitHub Packages if installing from a private repository. See [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#authenticating-with-a-personal-access-token) for more details.
 
 ## Simplest express server running MCP client:
@@ -38,7 +22,7 @@ Note: You'll need to authenticate to GitHub Packages if installing from a privat
 // examples/with-express/src/super-simple.ts
 import express from 'express'
 import cors from 'cors'
-import {  MCPClient, mcpTool  } from 'mcp-express-adapter'
+import { MCPClient, mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 
 // Create Express app
@@ -80,7 +64,6 @@ app.listen(PORT, () => {
   console.log(`✨ Super Simple MCP Server running!`)
   console.log(`🔗 Connect at: http://localhost:${PORT}/mcp/sse`)
 })
-
 ```
 
 ## In the terminal make sure the server is running:
@@ -114,6 +97,10 @@ Debug mode: enabled will show debug logs, to disable set NODE_ENV=production
   }
 }
 ```
+
+Then **Restart** Claude desktop and you'll be able to see the MCP tools within few seconds
+![Image](https://vg-bunny-cdn.b-cdn.net/random/Screenshot%202025-04-13%20at%208.57.38%E2%80%AFPM%20copy.png)
+![Image](https://vg-bunny-cdn.b-cdn.net/random/Screenshot%202025-04-13%20at%208.57.51%E2%80%AFPM.png)
 
 ## Multiple MCP client on same Express server.
 
@@ -215,7 +202,6 @@ app.listen(PORT, () => {
   console.log(`Calculator MCP: http://localhost:${PORT}/calculator-mcp/sse`)
   console.log(`Time MCP: http://localhost:${PORT}/time-mcp/sse`)
 })
-
 ```
 
 ## Usage with Langchain + Langgraph
@@ -325,7 +311,6 @@ async function runLangchainMcpExample() {
 }
 
 runLangchainMcpExample()
-
 ```
 
 ## Examples
@@ -338,7 +323,7 @@ Here's a complete example using the `mcpTool` helper for creating type-safe MCP 
 // examples/with-express/src/index.ts
 import express from 'express'
 import cors from 'cors'
-import {  MCPClient, mcpTool  } from 'mcp-express-adapter'
+import { MCPClient, mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 import dotenv from 'dotenv'
 
@@ -500,7 +485,6 @@ app.listen(PORT, () => {
     `Debug mode: ${debugMode ? 'enabled will show debug logs, to disable set NODE_ENV=production' : 'disabled will not log anything.'}`,
   )
 })
-
 ```
 
 You can run this example with:
@@ -517,7 +501,7 @@ Here's how to create a simple tool with the `mcpTool` helper:
 
 ```typescript
 // examples/with-express/src/tool-example.ts
-import {  mcpTool  } from 'mcp-express-adapter'
+import { mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 
 /**
@@ -602,7 +586,6 @@ const nonTypesafeTool = {
 }
 
 export { weatherTool, greetingTool, nonTypesafeTool }
-
 ```
 
 ## API Reference
