@@ -51,6 +51,8 @@ export class MCPClient {
   private messagePath: string
   private toolDefinitionsMap: Record<string, Tool> // Map tool name to Tool definition
   private debug: boolean // Flag to control logging
+  private serverName: string // Store server name
+  private serverVersion: string // Store server version
 
   // Store active transports by sessionId
   private activeTransports: Record<string, SSEServerTransport> = {}
@@ -72,8 +74,8 @@ export class MCPClient {
     this.ssePath = '/sse'
     this.messagePath = '/message'
 
-    const serverName = options.serverName || 'mcp-server'
-    const serverVersion = options.serverVersion || '1.0.0'
+    this.serverName = options.serverName || 'mcp-server'
+    this.serverVersion = options.serverVersion || '1.0.0'
 
     // Create and validate tool definitions using the SDK schema
     this.toolDefinitionsMap = {} // This still stores the full Tool objects
@@ -104,7 +106,7 @@ export class MCPClient {
 
     // Create the SDK Server instance with the correctly structured capabilities map
     this.server = new Server(
-      { name: serverName, version: serverVersion },
+      { name: this.serverName, version: this.serverVersion },
       {
         capabilities: {
           tools: capabilitiesToolsMap, // Use the map with { description, inputSchema }
@@ -115,6 +117,60 @@ export class MCPClient {
 
     this.setupRequestHandlers(options.tools)
     this.setupRoutes()
+  }
+
+  /**
+   * Get the base endpoint URL for this MCP client
+   */
+  public getEndpoint(): string {
+    return this.endpoint
+  }
+
+  /**
+   * Get the full SSE endpoint URL for this MCP client
+   * Note: This requires the base URL which is only known at request time
+   */
+  public getSSEEndpoint(baseUrl: string): string {
+    // Make sure baseUrl doesn't end with a slash if endpoint starts with one
+    const normalizedBaseUrl =
+      baseUrl.endsWith('/') && this.endpoint.startsWith('/')
+        ? baseUrl.slice(0, -1)
+        : baseUrl
+    return `${normalizedBaseUrl}${this.endpoint}${this.ssePath}`
+  }
+
+  /**
+   * Get information about all tools registered with this client
+   */
+  public getTools(): Array<{ name: string; description: string }> {
+    return Object.values(this.toolDefinitionsMap).map((tool) => ({
+      name: tool.name,
+      description: tool.description || '', // Ensure description is always a string
+    }))
+  }
+
+  /**
+   * Get complete metadata about this MCP client
+   */
+  public getMetadata(): {
+    endpoint: string
+    ssePath: string
+    messagePath: string
+    tools: Array<{ name: string; description: string }>
+    debug: boolean
+    serverName: string
+    serverVersion: string
+  } {
+    // Get server info from class properties
+    return {
+      endpoint: this.endpoint,
+      ssePath: this.ssePath,
+      messagePath: this.messagePath,
+      tools: this.getTools(),
+      debug: this.debug,
+      serverName: this.serverName,
+      serverVersion: this.serverVersion,
+    }
   }
 
   /**

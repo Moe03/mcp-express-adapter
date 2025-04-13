@@ -1,14 +1,19 @@
 import { mcpTool } from '../../../src/lib/tools.js'
 import { z } from 'zod'
 
-// This is a demo tool implementation
-// Define a weather tool with a Zod schema for input and output
+/**
+ * Example 1: Tool with an output schema for complex data
+ *
+ * Use this approach when your tool returns structured data that
+ * needs strong type checking.
+ */
 const weatherTool = mcpTool({
   name: 'get_weather',
   description: 'Get the current weather for a location',
   schema: z.object({
     location: z.string().describe('The location to get weather for'),
   }),
+  // Define the output schema for structured data
   outputSchema: z
     .object({
       temperature: z.number().describe('Current temperature in °F'),
@@ -28,4 +33,26 @@ const weatherTool = mcpTool({
   },
 })
 
-export default weatherTool
+/**
+ * Example 2: Tool without an output schema for simple string responses
+ *
+ * Use this approach when your tool returns simple text responses
+ * that don't need complex structure or validation.
+ */
+const greetingTool = mcpTool({
+  name: 'greeting',
+  description: 'Get a personalized greeting',
+  schema: z.object({
+    name: z.string().describe('The name to greet'),
+    formal: z.boolean().optional().describe('Whether to use formal language'),
+  }),
+  // No outputSchema needed for simple string responses
+  handler: async (args) => {
+    // When no outputSchema is provided, you must return a string
+    return args.formal
+      ? `Good day, ${args.name}. How may I be of service?`
+      : `Hey ${args.name}! How's it going?`
+  },
+})
+
+export { weatherTool, greetingTool }

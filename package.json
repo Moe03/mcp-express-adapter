@@ -27,11 +27,12 @@
     "start": "node dist/index.js",
     "format": "prettier --write 'src/**/*.ts' '*.json' '.prettierrc'",
     "format:check": "prettier --check 'src/**/*.ts' '*.json' '.prettierrc'",
-    "prepare": "husky",
-    "postinstall": "node scripts/update-readme.js",
+    "prepare": "husky && node scripts/update-readme.js",
+    "postinstall": "node scripts/fix-readme.js",
     "test-express": "tsx examples/with-express/src/index.ts",
     "test-langchain": "tsx examples/with-langchain/src/index.ts",
-    "test-multiple-express": "tsx examples/with-express/src/multiple-mcp-clients.ts"
+    "test-multiple-express": "tsx examples/with-express/src/multiple-mcp-clients.ts",
+    "update-docs": "node scripts/update-readme.js"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"

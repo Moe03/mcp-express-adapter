@@ -1,84 +1,50 @@
 import express from 'express'
 import cors from 'cors'
-import { MCPClient, ToolImpl } from 'mcp-express-adapter'
+import { MCPClient, mcpTool } from 'mcp-express-adapter'
+import { z } from 'zod'
 
 // Create Express app
 const app = express()
 app.use(cors())
 
-// Define weather tool implementation
-const weatherTool: ToolImpl<{ location: string }> = {
+// Define weather tool using mcpTool helper
+const weatherTool = mcpTool({
   name: 'get_weather',
   description: 'Get the current weather for a location',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      location: {
-        type: 'string',
-        description: 'The location to get weather for',
-      },
-    },
-    required: ['location'],
-  },
-  handler: async (args) => ({
-    content: [
-      {
-        type: 'text',
-        text: `Weather for ${args.location}: Sunny, 72°F`,
-      },
-    ],
-    isError: false,
+  schema: z.object({
+    location: z.string().describe('The location to get weather for'),
   }),
-}
+  handler: async (args) => {
+    return `Weather for ${args.location}: Sunny, 72°F`
+  },
+})
 
-// Define calculator tool implementation
-const calculatorTool: ToolImpl<{ expression: string }> = {
+// Define calculator tool using mcpTool helper
+const calculatorTool = mcpTool({
   name: 'calculate',
   description: 'Calculate the result of a mathematical expression',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      expression: {
-        type: 'string',
-        description: 'The mathematical expression to evaluate',
-      },
-    },
-    required: ['expression'],
-  },
-  handler: async (args) => ({
-    content: [
-      {
-        type: 'text',
-        text: `Result: ${eval(args.expression)}`,
-      },
-    ],
-    isError: false,
+  schema: z.object({
+    expression: z.string().describe('The mathematical expression to evaluate'),
   }),
-}
+  handler: async (args) => {
+    return `Result: ${eval(args.expression)}`
+  },
+})
 
-// Define time tool implementation
-const timeTool: ToolImpl<{ timezone?: string }> = {
+// Define time tool using mcpTool helper
+const timeTool = mcpTool({
   name: 'get_time',
   description: 'Get the current time, optionally for a specific timezone',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      timezone: {
-        type: 'string',
-        description: 'The timezone to get time for (optional)',
-      },
-    },
-  },
-  handler: async (args) => ({
-    content: [
-      {
-        type: 'text',
-        text: `Current time${args.timezone ? ` in ${args.timezone}` : ''}: ${new Date().toLocaleString()}`,
-      },
-    ],
-    isError: false,
+  schema: z.object({
+    timezone: z
+      .string()
+      .optional()
+      .describe('The timezone to get time for (optional)'),
   }),
-}
+  handler: async (args) => {
+    return `Current time${args.timezone ? ` in ${args.timezone}` : ''}: ${new Date().toLocaleString()}`
+  },
+})
 
 // Create first MCP client with weather tool
 const weatherClient = new MCPClient({

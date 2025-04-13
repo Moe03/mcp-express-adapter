@@ -23,12 +23,15 @@ MCP client server with get weather tool:
 // examples/with-express/src/super-simple.ts
 import express from 'express'
 import cors from 'cors'
-import { MCPClient, mcpTool } from 'mcp-express-adapter'
+import {  MCPClient, mcpTool  } from 'mcp-express-adapter'
 import { z } from 'zod'
 
 // Create Express app
 const app = express()
 app.use(cors())
+
+// ======== SUPER SIMPLE DEMO ========
+// This file shows the simplest possible usage of mcpTool
 
 // Define a super simple weather tool
 const weatherTool = mcpTool({
@@ -65,6 +68,7 @@ app.listen(PORT, () => {
   console.log(`✨ Super Simple MCP Server running!`)
   console.log(`🔗 Connect at: http://localhost:${PORT}/mcp/sse`)
 })
+
 ```
 
 ## Multiple MCP Clients
@@ -75,51 +79,85 @@ Here's how to create a simple Express server with an MCP endpoint and a weather 
 // examples/with-express/src/multiple-mcp-clients.ts
 import express from 'express'
 import cors from 'cors'
-import { MCPClient, mcpTool } from 'mcp-express-adapter'
-import { z } from 'zod'
+import { MCPClient, ToolImpl } from 'mcp-express-adapter'
 
 // Create Express app
 const app = express()
 app.use(cors())
 
-// Define weather tool using mcpTool helper
-const weatherTool = mcpTool({
+// Define weather tool implementation
+const weatherTool: ToolImpl<{ location: string }> = {
   name: 'get_weather',
   description: 'Get the current weather for a location',
-  schema: z.object({
-    location: z.string().describe('The location to get weather for'),
-  }),
-  handler: async (args) => {
-    return `Weather for ${args.location}: Sunny, 72°F`
+  inputSchema: {
+    type: 'object',
+    properties: {
+      location: {
+        type: 'string',
+        description: 'The location to get weather for',
+      },
+    },
+    required: ['location'],
   },
-})
+  handler: async (args) => ({
+    content: [
+      {
+        type: 'text',
+        text: `Weather for ${args.location}: Sunny, 72°F`,
+      },
+    ],
+    isError: false,
+  }),
+}
 
-// Define calculator tool using mcpTool helper
-const calculatorTool = mcpTool({
+// Define calculator tool implementation
+const calculatorTool: ToolImpl<{ expression: string }> = {
   name: 'calculate',
   description: 'Calculate the result of a mathematical expression',
-  schema: z.object({
-    expression: z.string().describe('The mathematical expression to evaluate'),
-  }),
-  handler: async (args) => {
-    return `Result: ${eval(args.expression)}`
+  inputSchema: {
+    type: 'object',
+    properties: {
+      expression: {
+        type: 'string',
+        description: 'The mathematical expression to evaluate',
+      },
+    },
+    required: ['expression'],
   },
-})
+  handler: async (args) => ({
+    content: [
+      {
+        type: 'text',
+        text: `Result: ${eval(args.expression)}`,
+      },
+    ],
+    isError: false,
+  }),
+}
 
-// Define time tool using mcpTool helper
-const timeTool = mcpTool({
+// Define time tool implementation
+const timeTool: ToolImpl<{ timezone?: string }> = {
   name: 'get_time',
   description: 'Get the current time, optionally for a specific timezone',
-  schema: z.object({
-    timezone: z
-      .string()
-      .optional()
-      .describe('The timezone to get time for (optional)'),
-  }),
-  handler: async (args) => {
-    return `Current time${args.timezone ? ` in ${args.timezone}` : ''}: ${new Date().toLocaleString()}`
+  inputSchema: {
+    type: 'object',
+    properties: {
+      timezone: {
+        type: 'string',
+        description: 'The timezone to get time for (optional)',
+      },
+    },
   },
-})
+  handler: async (args) => ({
+    content: [
+      {
+        type: 'text',
+        text: `Current time${args.timezone ? ` in ${args.timezone}` : ''}: ${new Date().toLocaleString()}`,
+      },
+    ],
+    isError: false,
+  }),
+}
 
 // Create first MCP client with weather tool
 const weatherClient = new MCPClient({
@@ -161,6 +199,7 @@ app.listen(PORT, () => {
   console.log(`Calculator MCP: http://localhost:${PORT}/calculator-mcp/sse`)
   console.log(`Time MCP: http://localhost:${PORT}/time-mcp/sse`)
 })
+
 ```
 
 ## Common issues
@@ -177,7 +216,7 @@ Here's a complete example using the `mcpTool` helper for creating type-safe MCP 
 // examples/with-express/src/index.ts
 import express from 'express'
 import cors from 'cors'
-import { MCPClient, mcpTool } from 'mcp-express-adapter'
+import {  MCPClient, mcpTool  } from 'mcp-express-adapter'
 import { z } from 'zod'
 import dotenv from 'dotenv'
 
@@ -285,14 +324,12 @@ const greetingTool = mcpTool({
   }),
   // No outputSchema needed, just return a string
   handler: async (args) => {
-    const greeting = args.formal
-      ? `Good day, ${args.name}. How may I be of service?`
-      : `Hey ${args.name}! How's it going?`
-
-    console.log(
-      `[GreetingTool] Generated greeting for ${args.name} (formal: ${args.formal || false})`,
-    )
-    return greeting
+    const greeting = args.formal 
+      ? `Good day, ${args.name}. How may I be of service?` 
+      : `Hey ${args.name}! How's it going?`;
+    
+    console.log(`[GreetingTool] Generated greeting for ${args.name} (formal: ${args.formal || false})`);
+    return greeting;
   },
 })
 
@@ -309,11 +346,11 @@ const mcpClient = new MCPClient({
 })
 
 // Show metadata about the client
-const metadata = mcpClient.getMetadata()
-console.log('MCP Client created with the following configuration:')
-console.log(`- Endpoint: ${metadata.endpoint}`)
-console.log(`- Server: ${metadata.serverName} v${metadata.serverVersion}`)
-console.log(`- Tools: ${metadata.tools.map((tool) => tool.name).join(', ')}`)
+const metadata = mcpClient.getMetadata();
+console.log('MCP Client created with the following configuration:');
+console.log(`- Endpoint: ${metadata.endpoint}`);
+console.log(`- Server: ${metadata.serverName} v${metadata.serverVersion}`);
+console.log(`- Tools: ${metadata.tools.map(tool => tool.name).join(', ')}`);
 
 // Mount MCP router
 app.use('/mcp', mcpClient.middleware())
@@ -328,17 +365,18 @@ app.get('/', (req, res) => {
 // Start the server
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000
 app.listen(PORT, () => {
-  const baseUrl = `http://localhost:${PORT}`
+  const baseUrl = `http://localhost:${PORT}`;
   console.log(`MCP Server running on port ${PORT}`)
-
+  
   // Get the SSE endpoint URL using the helper method
-  const sseEndpoint = mcpClient.getSSEEndpoint(baseUrl)
+  const sseEndpoint = mcpClient.getSSEEndpoint(baseUrl);
   console.log(`Connect at: ${sseEndpoint}`)
-
+  
   console.log(
     `Debug mode: ${debugMode ? 'enabled will show debug logs, to disable set NODE_ENV=production' : 'disabled will not log anything.'}`,
   )
 })
+
 ```
 
 You can run this example with:
@@ -360,7 +398,7 @@ import { z } from 'zod'
 
 /**
  * Example 1: Tool with an output schema for complex data
- *
+ * 
  * Use this approach when your tool returns structured data that
  * needs strong type checking.
  */
@@ -392,7 +430,7 @@ const weatherTool = mcpTool({
 
 /**
  * Example 2: Tool without an output schema for simple string responses
- *
+ * 
  * Use this approach when your tool returns simple text responses
  * that don't need complex structure or validation.
  */
@@ -406,13 +444,14 @@ const greetingTool = mcpTool({
   // No outputSchema needed for simple string responses
   handler: async (args) => {
     // When no outputSchema is provided, you must return a string
-    return args.formal
-      ? `Good day, ${args.name}. How may I be of service?`
-      : `Hey ${args.name}! How's it going?`
+    return args.formal 
+      ? `Good day, ${args.name}. How may I be of service?` 
+      : `Hey ${args.name}! How's it going?`;
   },
 })
 
 export { weatherTool, greetingTool }
+
 ```
 
 ## API Reference

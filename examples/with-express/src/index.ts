@@ -98,17 +98,45 @@ const listTool = mcpTool({
   },
 })
 
+// Add a tool that doesn't specify an outputSchema (will expect string return)
+const greetingTool = mcpTool({
+  name: 'greeting',
+  description: 'Get a personalized greeting',
+  schema: z.object({
+    name: z.string().describe('The name to greet'),
+    formal: z.boolean().optional().describe('Whether to use formal language'),
+  }),
+  // No outputSchema needed, just return a string
+  handler: async (args) => {
+    const greeting = args.formal
+      ? `Good day, ${args.name}. How may I be of service?`
+      : `Hey ${args.name}! How's it going?`
+
+    console.log(
+      `[GreetingTool] Generated greeting for ${args.name} (formal: ${args.formal || false})`,
+    )
+    return greeting
+  },
+})
+
 // if true will show debug logs, to disable set NODE_ENV=production
 const debugMode = process.env.NODE_ENV === 'development'
 
 // Create MCP client
 const mcpClient = new MCPClient({
   endpoint: '/mcp',
-  tools: [weatherTool, calculatorTool, listTool],
+  tools: [weatherTool, calculatorTool, listTool, greetingTool],
   serverName: 'my-mcp-server',
   serverVersion: '1.0.0',
   debug: debugMode, // Enable debug logs only when --debug flag is passed
 })
+
+// Show metadata about the client
+const metadata = mcpClient.getMetadata()
+console.log('MCP Client created with the following configuration:')
+console.log(`- Endpoint: ${metadata.endpoint}`)
+console.log(`- Server: ${metadata.serverName} v${metadata.serverVersion}`)
+console.log(`- Tools: ${metadata.tools.map((tool) => tool.name).join(', ')}`)
 
 // Mount MCP router
 app.use('/mcp', mcpClient.middleware())
@@ -116,11 +144,20 @@ app.use('/mcp', mcpClient.middleware())
 // Apply JSON parser for other routes
 app.use(express.json())
 
+app.get('/', (req, res) => {
+  res.send(`Hello World MCP Express Adapter.`)
+})
+
 // Start the server
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000
 app.listen(PORT, () => {
+  const baseUrl = `http://localhost:${PORT}`
   console.log(`MCP Server running on port ${PORT}`)
-  console.log(`Connect at: http://localhost:${PORT}/mcp/sse`)
+
+  // Get the SSE endpoint URL using the helper method
+  const sseEndpoint = mcpClient.getSSEEndpoint(baseUrl)
+  console.log(`Connect at: ${sseEndpoint}`)
+
   console.log(
     `Debug mode: ${debugMode ? 'enabled will show debug logs, to disable set NODE_ENV=production' : 'disabled will not log anything.'}`,
   )

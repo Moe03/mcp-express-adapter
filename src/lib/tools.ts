@@ -22,7 +22,7 @@ type McpResponse = {
  */
 export function mcpTool<
   TInput extends ZodType,
-  TOutput extends ZodType = ZodType,
+  TOutput extends ZodType | undefined = undefined,
 >({
   name,
   description,
@@ -36,7 +36,7 @@ export function mcpTool<
   outputSchema?: TOutput
   handler: (
     args: z.infer<TInput>,
-  ) => Promise<z.infer<TOutput>> | z.infer<TOutput>
+  ) => Promise<TOutput extends ZodType ? z.infer<TOutput> : string>
 }): {
   name: string
   description: string
@@ -83,7 +83,37 @@ export function mcpTool<
 
         // Validate output if schema provided
         if (outputSchema) {
-          outputSchema.parse(result)
+          try {
+            outputSchema.parse(result)
+          } catch (error) {
+            if (error instanceof z.ZodError) {
+              const errorMessage = error.errors
+                .map((e) => `${e.path.join('.')}: ${e.message}`)
+                .join(', ')
+
+              return {
+                content: [
+                  {
+                    type: 'text',
+                    text: `Output validation error: ${errorMessage}`,
+                  },
+                ],
+                isError: true,
+              }
+            }
+            throw error
+          }
+        } else if (typeof result !== 'string') {
+          // When no output schema is provided, we expect a string
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Handler returned non-string value, but no output schema was provided. Value: ${JSON.stringify(result)}`,
+              },
+            ],
+            isError: true,
+          }
         }
 
         // Format the output according to MCP protocol
@@ -91,17 +121,13 @@ export function mcpTool<
       } catch (error) {
         if (error instanceof z.ZodError) {
           // Format validation errors
-          const errorPart = error.message.includes('input') ? 'input' : 'output'
           const errorMessage = error.errors
             .map((e) => `${e.path.join('.')}: ${e.message}`)
             .join(', ')
 
           return {
             content: [
-              {
-                type: 'text',
-                text: `${errorPart} validation error: ${errorMessage}`,
-              },
+              { type: 'text', text: `Input validation error: ${errorMessage}` },
             ],
             isError: true,
           }
