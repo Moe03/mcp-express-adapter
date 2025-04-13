@@ -64,7 +64,19 @@ app.listen(PORT, () => {
 })
 ```
 
-## Now use the MCP client in Claude desktop
+## In the terminal make sure the server is running:
+
+```bash
+MCP Client created with the following configuration:
+- Endpoint: /mcp
+- Server: my-mcp-server v1.0.0
+- Tools: get_weather, calculator, generate_list, greeting
+MCP Server running on port 3000
+Connect at: http://localhost:3000/mcp/sse
+Debug mode: enabled will show debug logs, to disable set NODE_ENV=production
+```
+
+## Now you can test out the MCP server in Claude desktop
 
 - settings > developer > edit config file to this:
 
