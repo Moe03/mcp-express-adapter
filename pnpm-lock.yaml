@@ -59,7 +59,7 @@ importers:
       express:
         specifier: ^4.21.2
         version: 4.21.2
-      mcp-express-adapter:
+      mcp-express-middleware:
         specifier: workspace:*
         version: link:../..
     devDependencies:
@@ -99,7 +99,7 @@ importers:
       express:
         specifier: ^4.21.2
         version: 4.21.2
-      mcp-express-adapter:
+      mcp-express-middleware:
         specifier: workspace:*
         version: link:../..
     devDependencies:

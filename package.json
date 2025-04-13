@@ -1,5 +1,5 @@
 {
-  "name": "mcp-express-adapter",
+  "name": "mcp-express-middleware",
   "version": "1.0.2",
   "description": "Express adapter for MCP servers.",
   "author": "Moe03<https://github.com/Moe03>",
@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Moe03/mcp-express-adapter.git"
+    "url": "git+https://github.com/Moe03/mcp-express-middleware.git"
   },
   "keywords": [
     "mcp",

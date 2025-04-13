@@ -7,11 +7,11 @@ A lightweight adapter for creating [MCP (Model Context Protocol)](https://github
 ## Installation
 
 ```bash
-npm install mcp-express-adapter
+npm install mcp-express-middleware
 # or
-yarn add mcp-express-adapter
+yarn add mcp-express-middleware
 # or
-pnpm add mcp-express-adapter
+pnpm add mcp-express-middleware
 ```
 
 ## Multiple MCP Clients
@@ -21,7 +21,7 @@ Here's how to create a simple Express server with an MCP endpoint and a weather 
 ```typescript
 import express from 'express'
 import cors from 'cors'
-import { MCPClient, ToolImpl } from 'mcp-express-adapter'
+import { MCPClient, ToolImpl } from 'mcp-express-middleware'
 
 // Create Express app
 const app = express()
@@ -204,7 +204,7 @@ Here's a more advanced example with multiple tools and endpoints:
 ```javascript
 import express from 'express'
 import cors from 'cors'
-import { MCPClient } from 'mcp-express-adapter'
+import { MCPClient } from 'mcp-express-middleware'
 
 const app = express()
 app.use(cors())

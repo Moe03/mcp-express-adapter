@@ -1,7 +1,7 @@
 {
-  "name": "with-express-mcp-express-adapter",
+  "name": "with-express-mcp-express-middleware",
   "version": "1.0.0",
-  "description": "Example Express server using mcp-express-adapter",
+  "description": "Example Express server using mcp-express-middleware",
   "type": "module",
   "private": false,
   "scripts": {
@@ -12,7 +12,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "mcp-express-adapter": "workspace:*"
+    "mcp-express-middleware": "workspace:*"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
