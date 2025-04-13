@@ -1,8 +1,8 @@
-# MCP Adapter for Express Servers
+# MCP Middleware Adapter for Express Servers
 
-A lightweight adapter for creating [MCP (Model Context Protocol)](https://github.com/modelcontextprotocol) servers using Express.js.
+- A lightweight adapter for creating [MCP (Model Context Protocol)](https://github.com/modelcontextprotocol) servers using Express.js.
 
-Sponsored by https://tixaeagents.ai create Text/Voice AI agents in seconds, compatible with MCP servers.
+- Sponsored by https://tixaeagents.ai create Text/Voice AI agents in seconds, compatible with MCP servers.
 
 ## Installation
 
@@ -16,13 +16,11 @@ pnpm add mcp-express-adapter@latest
 
 ## Simplest express server running MCP client:
 
-MCP client server with get weather tool:
-
 ```typescript
 // examples/with-express/src/super-simple.ts
 import express from 'express'
 import cors from 'cors'
-import {  MCPClient, mcpTool  } from 'mcp-express-adapter'
+import { MCPClient, mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 
 // Create Express app
@@ -64,11 +62,12 @@ app.listen(PORT, () => {
   console.log(`✨ Super Simple MCP Server running!`)
   console.log(`🔗 Connect at: http://localhost:${PORT}/mcp/sse`)
 })
-
 ```
 
 ## Now use the MCP client in Claude desktop
+
 - settings > developer > edit config file to this:
+
 ```json
 {
   "mcpServers": {
@@ -84,9 +83,8 @@ app.listen(PORT, () => {
   }
 }
 ```
-## Multiple MCP Clients
 
-Here's how to create a simple Express server with an MCP endpoint and a weather tool:
+## Multiple MCP client on same Express server.
 
 ```typescript
 // examples/with-express/src/multiple-mcp-clients.ts
@@ -106,8 +104,16 @@ const weatherTool = mcpTool({
   schema: z.object({
     location: z.string().describe('The location to get weather for'),
   }),
+  // you can define typesafe output schema..
+  outputSchema: z.object({
+    farenheight: z.number().describe('The temperature in farenheight'),
+    celsius: z.number().describe('The temperature in celsius'),
+  }),
   handler: async (args) => {
-    return `Weather for ${args.location}: Sunny, 72°F`
+    return {
+      farenheight: 72,
+      celsius: 22,
+    }
   },
 })
 
@@ -178,7 +184,6 @@ app.listen(PORT, () => {
   console.log(`Calculator MCP: http://localhost:${PORT}/calculator-mcp/sse`)
   console.log(`Time MCP: http://localhost:${PORT}/time-mcp/sse`)
 })
-
 ```
 
 ## Examples
@@ -191,7 +196,7 @@ Here's a complete example using the `mcpTool` helper for creating type-safe MCP 
 // examples/with-express/src/index.ts
 import express from 'express'
 import cors from 'cors'
-import {  MCPClient, mcpTool  } from 'mcp-express-adapter'
+import { MCPClient, mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 import dotenv from 'dotenv'
 
@@ -353,7 +358,6 @@ app.listen(PORT, () => {
     `Debug mode: ${debugMode ? 'enabled will show debug logs, to disable set NODE_ENV=production' : 'disabled will not log anything.'}`,
   )
 })
-
 ```
 
 You can run this example with:
@@ -428,7 +432,6 @@ const greetingTool = mcpTool({
 })
 
 export { weatherTool, greetingTool }
-
 ```
 
 ## API Reference
@@ -568,12 +571,14 @@ npx express-mcp --host http://localhost:3000/mcp
 ```
 
 ### Common issues
+
 - Make sure to apply exress.json() AFTER the app.use MCP middleware
 - Webscokets are not yet tested enough.
 
 ### Why
+
 - Default way of deploying MCP servers is annoying, this is trying to simplify it for NodeJS applications
-  
+
 ## License
 
 MIT

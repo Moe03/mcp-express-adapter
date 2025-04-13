@@ -1,4 +1,4 @@
-import { mcpTool } from '../../../src/lib/tools.js'
+import { mcpTool } from '../../../src/index.js'
 import { z } from 'zod'
 
 /**
@@ -55,4 +55,31 @@ const greetingTool = mcpTool({
   },
 })
 
-export { weatherTool, greetingTool }
+// non typesafe tool:
+// javascript ready
+const nonTypesafeTool = {
+  name: 'search_web',
+  description: 'Search the web for information',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'The search query' },
+      limit: {
+        type: 'number',
+        description: 'Maximum number of results to return',
+      },
+    },
+    required: ['query'],
+  },
+  handler: async (args) => ({
+    content: [
+      {
+        type: 'text',
+        text: `Search results for "${args.query}": Results here...`,
+      },
+    ],
+    isError: false,
+  }),
+}
+
+export { weatherTool, greetingTool, nonTypesafeTool }

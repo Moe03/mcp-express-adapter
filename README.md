@@ -1,8 +1,8 @@
-# MCP Adapter for Express Servers
+# MCP Middleware Adapter for Express Servers
 
-A lightweight adapter for creating [MCP (Model Context Protocol)](https://github.com/modelcontextprotocol) servers using Express.js.
+- A lightweight adapter for creating [MCP (Model Context Protocol)](https://github.com/modelcontextprotocol) servers using Express.js.
 
-Sponsored by https://tixaeagents.ai create Text/Voice AI agents in seconds, compatible with MCP servers.
+- Sponsored by https://tixaeagents.ai create Text/Voice AI agents in seconds, compatible with MCP servers.
 
 ## Installation
 
@@ -15,8 +15,6 @@ pnpm add mcp-express-adapter@latest
 ```
 
 ## Simplest express server running MCP client:
-
-MCP client server with get weather tool:
 
 ```typescript
 // examples/with-express/src/super-simple.ts
@@ -86,9 +84,7 @@ app.listen(PORT, () => {
 }
 ```
 
-## Multiple MCP Clients
-
-Here's how to create a simple Express server with an MCP endpoint and a weather tool:
+## Multiple MCP client on same Express server.
 
 ```typescript
 // examples/with-express/src/multiple-mcp-clients.ts
@@ -378,7 +374,7 @@ Here's how to create a simple tool with the `mcpTool` helper:
 
 ```typescript
 // examples/with-express/src/tool-example.ts
-import { mcpTool } from '../../../src/lib/tools.js'
+import { mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 
 /**
@@ -435,7 +431,34 @@ const greetingTool = mcpTool({
   },
 })
 
-export { weatherTool, greetingTool }
+// non typesafe tool:
+// javascript ready
+const nonTypesafeTool = {
+  name: 'search_web',
+  description: 'Search the web for information',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'The search query' },
+      limit: {
+        type: 'number',
+        description: 'Maximum number of results to return',
+      },
+    },
+    required: ['query'],
+  },
+  handler: async (args) => ({
+    content: [
+      {
+        type: 'text',
+        text: `Search results for "${args.query}": Results here...`,
+      },
+    ],
+    isError: false,
+  }),
+}
+
+export { weatherTool, greetingTool, nonTypesafeTool }
 ```
 
 ## API Reference
