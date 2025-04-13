@@ -200,6 +200,8 @@ app.listen(PORT, () => {
 
 ## Usage with Langchain + Langgraph
 
+- With the help of @langchain/mcp-adapters https://github.com/langchain-ai/langchainjs-mcp-adapters
+
 ```typescript
 // examples/with-langchain/src/index.ts
 import { MultiServerMCPClient } from '@langchain/mcp-adapters'
