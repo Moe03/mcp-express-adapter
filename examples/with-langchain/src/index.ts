@@ -29,8 +29,7 @@ async function runLangchainMcpExample() {
     },
   })
 
-  //   try {
-  console.log('Loading tools from MCP server via Supergateway...')
+  console.log('Loading tools from MCP server via express adapter...')
   // Keep getTools call with options
   const tools = (await Promise.race([
     mcpClient.getTools(),
