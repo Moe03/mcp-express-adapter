@@ -99,8 +99,8 @@ Debug mode: enabled will show debug logs, to disable set NODE_ENV=production
 ```
 
 Then **Restart** Claude desktop and you'll be able to see the MCP tools within few seconds
-![Image](./src/assets/1.png)
-![Image](./src/assets/2.png)
+![Image](https://vg-bunny-cdn.b-cdn.net/random/Screenshot%202025-04-13%20at%208.57.38%E2%80%AFPM%20copy.png)
+![Image](https://vg-bunny-cdn.b-cdn.net/random/Screenshot%202025-04-13%20at%208.57.51%E2%80%AFPM.png)
 
 ## Multiple MCP client on same Express server.
 
