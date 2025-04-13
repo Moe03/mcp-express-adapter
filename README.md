@@ -2,8 +2,7 @@
 
 A lightweight adapter for creating [MCP (Model Context Protocol)](https://github.com/modelcontextprotocol) servers using Express.js.
 
-!! Warning:
-Update regularly.
+Sponsored by https://tixaeagents.ai create Text/Voice AI agents in seconds, compatible with MCP servers.
 
 ## Installation
 
@@ -67,6 +66,26 @@ app.listen(PORT, () => {
 })
 ```
 
+## Now use the MCP client in Claude desktop
+
+- settings > developer > edit config file to this:
+
+```json
+{
+  "mcpServers": {
+    "localMcpServer": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-express-adapter",
+        "--host",
+        "http://localhost:3000/mcp/sse"
+      ]
+    }
+  }
+}
+```
+
 ## Multiple MCP Clients
 
 Here's how to create a simple Express server with an MCP endpoint and a weather tool:
@@ -89,8 +108,16 @@ const weatherTool = mcpTool({
   schema: z.object({
     location: z.string().describe('The location to get weather for'),
   }),
+  // you can define typesafe output schema..
+  outputSchema: z.object({
+    farenheight: z.number().describe('The temperature in farenheight'),
+    celsius: z.number().describe('The temperature in celsius'),
+  }),
   handler: async (args) => {
-    return `Weather for ${args.location}: Sunny, 72°F`
+    return {
+      farenheight: 72,
+      celsius: 22,
+    }
   },
 })
 
@@ -162,10 +189,6 @@ app.listen(PORT, () => {
   console.log(`Time MCP: http://localhost:${PORT}/time-mcp/sse`)
 })
 ```
-
-## Common issues
-
-- Make sure to apply exress.json() AFTER the app.use MCP middleware
 
 ## Examples
 
@@ -550,6 +573,15 @@ Or use the MCP command-line client:
 ```bash
 npx express-mcp --host http://localhost:3000/mcp
 ```
+
+### Common issues
+
+- Make sure to apply exress.json() AFTER the app.use MCP middleware
+- Webscokets are not yet tested enough.
+
+### Why
+
+- Default way of deploying MCP servers is annoying, this is trying to simplify it for NodeJS applications
 
 ## License
 

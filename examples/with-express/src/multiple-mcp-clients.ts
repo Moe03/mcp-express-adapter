@@ -14,8 +14,16 @@ const weatherTool = mcpTool({
   schema: z.object({
     location: z.string().describe('The location to get weather for'),
   }),
+  // you can define typesafe output schema..
+  outputSchema: z.object({
+    farenheight: z.number().describe('The temperature in farenheight'),
+    celsius: z.number().describe('The temperature in celsius'),
+  }),
   handler: async (args) => {
-    return `Weather for ${args.location}: Sunny, 72°F`
+    return {
+      farenheight: 72,
+      celsius: 22,
+    }
   },
 })
 
