@@ -733,6 +733,14 @@ npx express-mcp --host http://localhost:3000/mcp
 
 - Default way of deploying MCP servers is annoying, this is trying to simplify it for NodeJS applications
 
+## Contributors
+
+- [Moe03](https://github.com/Moe03) - Main contributor and maintainer
+
+## How to Contribute
+
+Interested in contributing? Please open an issue on the [GitHub repository](https://github.com/Moe03/mcp-express-adapter) with your feature request or bug report.
+
 ## License
 
 MIT
