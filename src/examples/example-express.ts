@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import express from 'express'
 import cors from 'cors'
-import { MCPClient, ToolImpl } from './mcp-client.js'
+import { MCPClient, ToolImpl } from '../lib/mcp-client.js'
 
 // Parse command line arguments
 const args = process.argv.slice(2)

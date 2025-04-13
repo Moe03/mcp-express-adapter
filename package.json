@@ -1,7 +1,12 @@
 {
   "name": "mcp-express-adapter",
-  "version": "1.0.11",
+  "version": "1.0.2",
   "description": "Express adapter for MCP servers.",
+  "author": "Moe03<https://github.com/Moe03>",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Moe03/mcp-express-adapter.git"
@@ -10,9 +15,8 @@
     "mcp",
     "stdio",
     "sse",
-    "gateway",
-    "proxy",
-    "bridge"
+    "express",
+    "adapter"
   ],
   "type": "module",
   "bin": {
@@ -25,7 +29,8 @@
     "format:check": "prettier --check 'src/**/*.ts' '*.json' '.prettierrc'",
     "prepare": "husky",
     "example": "tsx src/examples/example-express.ts",
-    "test": "tsx src/test/langchain-test.ts"
+    "test": "tsx src/test/langchain-test.ts",
+    "docs-example": "tsx src/examples/docs-example.ts"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
@@ -44,6 +49,7 @@
     "event-source-polyfill": "^1.0.31",
     "eventsource": "^3.0.6",
     "express": "^4.21.2",
+    "mcp-express-adapter": "^1.0.2",
     "uuid": "^11.1.0",
     "ws": "^8.18.1",
     "yargs": "^17.7.2",

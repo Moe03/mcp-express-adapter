@@ -20,7 +20,7 @@ async function runLangchainMcpExample() {
     googleMapsServer: {
       // The server map directly
       transport: 'sse',
-      url: 'http://localhost:8000/agent-1/sse',
+      url: 'http://localhost:3000/mcp/sse',
       useNodeEventSource: true,
       reconnect: {
         enabled: true,
