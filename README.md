@@ -19,6 +19,7 @@ pnpm add mcp-express-adapter
 Here's how to create a simple Express server with an MCP endpoint and a weather tool:
 
 ```typescript
+// examples/with-express/src/multiple-mcp-clients.ts
 import express from 'express'
 import cors from 'cors'
 import { MCPClient, ToolImpl } from 'mcp-express-adapter'
@@ -157,8 +158,7 @@ Here's a complete example using the `mcpTool` helper for creating type-safe MCP 
 // examples/with-express/src/index.ts
 import express from 'express'
 import cors from 'cors'
-import { MCPClient } from 'mcp-express-adapter'
-import { mcpTool } from 'mcp-express-adapter'
+import { MCPClient, mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 import dotenv from 'dotenv'
 

@@ -1,7 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import { MCPClient } from '../../../src/lib/mcp-client.js'
-import { mcpTool } from '../../../src/lib/tools.js'
+import { MCPClient, mcpTool } from '../../../src/index.js'
 import { z } from 'zod'
 import dotenv from 'dotenv'
 
