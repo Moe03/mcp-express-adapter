@@ -1,11 +1,12 @@
 {
   "name": "mcp-express-adapter",
-  "version": "1.1.1",
+  "version": "1.1.5",
   "description": "Express adapter for MCP servers.",
   "author": "Moe03<https://github.com/Moe03>",
   "main": "dist/index.js",
   "files": [
-    "dist"
+    "dist",
+    "scripts"
   ],
   "repository": {
     "type": "git",
@@ -16,7 +17,8 @@
     "stdio",
     "sse",
     "express",
-    "adapter"
+    "adapter",
+    "middleware"
   ],
   "type": "module",
   "bin": {
@@ -28,17 +30,17 @@
     "format": "prettier --write 'src/**/*.ts' '*.json' '.prettierrc'",
     "format:check": "prettier --check 'src/**/*.ts' '*.json' '.prettierrc'",
     "prepare": "husky && node scripts/fix-readme.js",
-    "postinstall": "node scripts/fix-readme.js",
     "test-express": "tsx examples/with-express/src/index.ts",
     "test-langchain": "tsx examples/with-langchain/src/index.ts",
     "test-multiple-express": "tsx examples/with-express/src/multiple-mcp-clients.ts",
-    "update-docs": "node scripts/fix-readme.js"
+    "update-docs": "node scripts/fix-readme.js",
+    "mcp-express": "node dist/bin/mcp-express.js"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.4.1",
+    "@modelcontextprotocol/sdk": "^1.9.0",
     "body-parser": "^1.20.3",
     "express": "^4.21.2",
     "uuid": "^11.1.0",
@@ -60,7 +62,6 @@
     "typescript": "^5.7.3"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/",
     "access": "public"
   }
 }
