@@ -1,7 +1,6 @@
 import { MultiServerMCPClient } from '@langchain/mcp-adapters'
 import { ChatAnthropic } from '@langchain/anthropic'
 import { createReactAgent } from '@langchain/langgraph/prebuilt' // Incorrect
-// @ts-ignore
 import dotenv from 'dotenv'
 
 dotenv.config()

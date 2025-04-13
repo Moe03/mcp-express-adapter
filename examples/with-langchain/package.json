@@ -1,0 +1,27 @@
+{
+  "name": "with-langchain-mcp-express-adapter",
+  "version": "1.0.0",
+  "description": "Example Express server using mcp-express-adapter",
+  "type": "module",
+  "private": false,
+  "scripts": {
+    "start": "node index.js",
+    "dev": "tsx index.ts"
+  },
+  "dependencies": {
+    "@langchain/anthropic": "^0.3.17",
+    "@langchain/langgraph": "^0.2.63",
+    "@langchain/mcp-adapters": "^0.4.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "mcp-express-adapter": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

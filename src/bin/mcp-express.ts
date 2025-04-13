@@ -13,9 +13,9 @@ import {
 } from '@modelcontextprotocol/sdk/types.js'
 import { z } from 'zod'
 import { Logger } from '../types.js' // Assuming Logger type is defined here
-import { getVersion } from '../lib/getVersion.js'
-import { onSignals } from '../lib/onSignals.js'
-import { parseHeaders } from '../lib/parseHeaders.js'
+import { getVersion } from '../lib/get-version.js'
+import { onSignals } from '../lib/on-signal.js'
+import { parseHeaders } from '../lib/parse-headers.js'
 
 // --- Logging setup mirroring index.ts ---
 const log = (...args: any[]) => console.log('[express-mcp-adapter]', ...args)

@@ -14,21 +14,21 @@ yarn add mcp-express-adapter
 pnpm add mcp-express-adapter
 ```
 
-## Quick Start
+## Multiple MCP Clients
 
 Here's how to create a simple Express server with an MCP endpoint and a weather tool:
 
-```javascript
+```typescript
 import express from 'express'
 import cors from 'cors'
-import { MCPClient } from 'mcp-express-adapter'
+import { MCPClient, ToolImpl } from 'mcp-express-adapter'
 
 // Create Express app
 const app = express()
 app.use(cors())
 
 // Define weather tool implementation
-const weatherTool = {
+const weatherTool: ToolImpl<{ location: string }> = {
   name: 'get_weather',
   description: 'Get the current weather for a location',
   inputSchema: {
@@ -52,26 +52,110 @@ const weatherTool = {
   }),
 }
 
-// Create MCP client
-const mcpClient = new MCPClient({
-  endpoint: '/mcp',
+// Define calculator tool implementation
+const calculatorTool: ToolImpl<{ expression: string }> = {
+  name: 'calculate',
+  description: 'Calculate the result of a mathematical expression',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      expression: {
+        type: 'string',
+        description: 'The mathematical expression to evaluate',
+      },
+    },
+    required: ['expression'],
+  },
+  handler: async (args) => ({
+    content: [
+      {
+        type: 'text',
+        text: `Result: ${eval(args.expression)}`,
+      },
+    ],
+    isError: false,
+  }),
+}
+
+// Define time tool implementation
+const timeTool: ToolImpl<{ timezone?: string }> = {
+  name: 'get_time',
+  description: 'Get the current time, optionally for a specific timezone',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      timezone: {
+        type: 'string',
+        description: 'The timezone to get time for (optional)',
+      },
+    },
+  },
+  handler: async (args) => ({
+    content: [
+      {
+        type: 'text',
+        text: `Current time${args.timezone ? ` in ${args.timezone}` : ''}: ${new Date().toLocaleString()}`,
+      },
+    ],
+    isError: false,
+  }),
+}
+
+// Create first MCP client with weather tool
+const weatherClient = new MCPClient({
+  endpoint: '/weather-mcp',
   tools: [weatherTool],
-  serverName: 'my-mcp-server',
+  serverName: 'weather-mcp-server',
   serverVersion: '1.0.0',
 })
 
-// Mount MCP router BEFORE global JSON parser
-app.use('/mcp', mcpClient.middleware())
+// Create second MCP client with calculator tool
+const calculatorClient = new MCPClient({
+  endpoint: '/calculator-mcp',
+  tools: [calculatorTool],
+  serverName: 'calculator-mcp-server',
+  serverVersion: '1.0.0',
+})
+
+// Create third MCP client with time tool
+const timeClient = new MCPClient({
+  endpoint: '/time-mcp',
+  tools: [timeTool],
+  serverName: 'time-mcp-server',
+  serverVersion: '1.0.0',
+})
+
+// Mount MCP routers BEFORE global JSON parser
+app.use('/weather-mcp', weatherClient.middleware())
+app.use('/calculator-mcp', calculatorClient.middleware())
+app.use('/time-mcp', timeClient.middleware())
 
 // Apply global JSON parser AFTER agent routes
 app.use(express.json())
 
 // Start the server
-const PORT = 3000
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000
 app.listen(PORT, () => {
-  console.log(`MCP Server running on port ${PORT}`)
-  console.log(`Connect at: http://localhost:${PORT}/mcp/sse`)
+  console.log(`Multiple MCP Servers running on port ${PORT}`)
+  console.log(`Weather MCP: http://localhost:${PORT}/weather-mcp/sse`)
+  console.log(`Calculator MCP: http://localhost:${PORT}/calculator-mcp/sse`)
+  console.log(`Time MCP: http://localhost:${PORT}/time-mcp/sse`)
 })
+```
+
+## Common issues
+
+- Make sure to apply exress.json() AFTER the app.use MCP middleware
+
+## Examples
+
+For a complete working example, check out the [Express Server Example](./examples/express-server) in the examples directory. You can run it with:
+
+```bash
+# From the root of the repo
+pnpm install
+cd examples/express-server
+pnpm dev
 ```
 
 ## API Reference

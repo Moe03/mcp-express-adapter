@@ -1,0 +1,24 @@
+{
+  "name": "with-express-mcp-express-adapter",
+  "version": "1.0.0",
+  "description": "Example Express server using mcp-express-adapter",
+  "type": "module",
+  "private": false,
+  "scripts": {
+    "start": "node index.js",
+    "dev": "tsx index.ts",
+    "multiple-mcp-clients": "tsx src/multiple-mcp-clients.ts"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mcp-express-adapter": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
