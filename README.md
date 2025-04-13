@@ -14,22 +14,6 @@ yarn add mcp-express-adapter@latest
 pnpm add mcp-express-adapter@latest
 ```
 
-## Installing from GitHub Packages
-
-You can also install this package from GitHub Packages:
-
-```bash
-# Create or edit .npmrc in your project
-echo "registry=https://npm.pkg.github.com/moe03" > .npmrc
-
-# Install the package
-npm install mcp-express-adapter@latest
-# or
-yarn add mcp-express-adapter@latest
-# or
-pnpm add mcp-express-adapter@latest
-```
-
 Note: You'll need to authenticate to GitHub Packages if installing from a private repository. See [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#authenticating-with-a-personal-access-token) for more details.
 
 ## Simplest express server running MCP client:
@@ -113,6 +97,10 @@ Debug mode: enabled will show debug logs, to disable set NODE_ENV=production
   }
 }
 ```
+
+Then **Restart** Claude desktop and you'll be able to see the MCP tools within few seconds
+![Image](./src/assets/1.png)
+![Image](./src/assets/2.png)
 
 ## Multiple MCP client on same Express server.
 
