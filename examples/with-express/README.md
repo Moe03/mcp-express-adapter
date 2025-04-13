@@ -1,6 +1,6 @@
 # MCP Express Server Example
 
-A simple example showing how to use `mcp-express-middleware` with an Express server.
+A simple example showing how to use `mcp-express-adapter` with an Express server.
 
 ## Setup
 
@@ -32,4 +32,4 @@ http://localhost:3000/mcp/sse
 
 ## Using in Your Projects
 
-This example demonstrates how to integrate mcp-express-middleware with an Express server. You can use this as a template for your own projects.
+This example demonstrates how to integrate mcp-express-adapter with an Express server. You can use this as a template for your own projects.

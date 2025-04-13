@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import { MCPClient, ToolImpl } from 'mcp-express-middleware'
+import { MCPClient, ToolImpl } from 'mcp-express-adapter'
 
 // Create Express app
 const app = express()

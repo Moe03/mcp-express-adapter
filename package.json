@@ -1,6 +1,6 @@
 {
-  "name": "mcp-express-middleware",
-  "version": "1.0.2",
+  "name": "mcp-express-adapter",
+  "version": "1.1.0",
   "description": "Express adapter for MCP servers.",
   "author": "Moe03<https://github.com/Moe03>",
   "main": "dist/index.js",
@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Moe03/mcp-express-middleware.git"
+    "url": "git+https://github.com/Moe03/mcp-express-adapter.git"
   },
   "keywords": [
     "mcp",
@@ -28,6 +28,7 @@
     "format": "prettier --write 'src/**/*.ts' '*.json' '.prettierrc'",
     "format:check": "prettier --check 'src/**/*.ts' '*.json' '.prettierrc'",
     "prepare": "husky",
+    "postinstall": "node scripts/update-readme.js",
     "test-express": "tsx examples/with-express/src/index.ts",
     "test-langchain": "tsx examples/with-langchain/src/index.ts",
     "test-multiple-express": "tsx examples/with-express/src/multiple-mcp-clients.ts"
@@ -39,13 +40,17 @@
     "@modelcontextprotocol/sdk": "^1.4.1",
     "body-parser": "^1.20.3",
     "express": "^4.21.2",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.1",
     "yargs": "^17.7.2",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "zod-to-json-schema": "^3.24.5"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.5",
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.0",
+    "@types/ws": "^8.18.1",
     "@types/yargs": "^17.0.33",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.0",

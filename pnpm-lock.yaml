@@ -16,12 +16,21 @@ importers:
       express:
         specifier: ^4.21.2
         version: 4.21.2
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
+      ws:
+        specifier: ^8.18.1
+        version: 8.18.1
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
       zod:
         specifier: ^3.24.2
         version: 3.24.2
+      zod-to-json-schema:
+        specifier: ^3.24.5
+        version: 3.24.5(zod@3.24.2)
     devDependencies:
       '@types/body-parser':
         specifier: ^1.19.5
@@ -32,6 +41,9 @@ importers:
       '@types/node':
         specifier: ^22.13.0
         version: 22.14.1
+      '@types/ws':
+        specifier: ^8.18.1
+        version: 8.18.1
       '@types/yargs':
         specifier: ^17.0.33
         version: 17.0.33
@@ -56,10 +68,13 @@ importers:
       cors:
         specifier: ^2.8.5
         version: 2.8.5
+      dotenv:
+        specifier: ^16.5.0
+        version: 16.5.0
       express:
         specifier: ^4.21.2
         version: 4.21.2
-      mcp-express-middleware:
+      mcp-express-adapter:
         specifier: workspace:*
         version: link:../..
     devDependencies:
@@ -99,7 +114,7 @@ importers:
       express:
         specifier: ^4.21.2
         version: 4.21.2
-      mcp-express-middleware:
+      mcp-express-adapter:
         specifier: workspace:*
         version: link:../..
     devDependencies:
@@ -575,6 +590,12 @@ packages:
     resolution:
       {
         integrity: sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==,
+      }
+
+  '@types/ws@8.18.1':
+    resolution:
+      {
+        integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==,
       }
 
   '@types/yargs-parser@21.0.3':
@@ -2101,6 +2122,13 @@ packages:
       }
     hasBin: true
 
+  uuid@11.1.0:
+    resolution:
+      {
+        integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==,
+      }
+    hasBin: true
+
   uuid@9.0.1:
     resolution:
       {
@@ -2167,6 +2195,21 @@ packages:
       {
         integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==,
       }
+
+  ws@8.18.1:
+    resolution:
+      {
+        integrity: sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==,
+      }
+    engines: { node: '>=10.0.0' }
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
 
   y18n@5.0.8:
     resolution:
@@ -2471,6 +2514,10 @@ snapshots:
       '@types/send': 0.17.4
 
   '@types/uuid@10.0.0': {}
+
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 22.14.1
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -3383,6 +3430,8 @@ snapshots:
 
   uuid@10.0.0: {}
 
+  uuid@11.1.0: {}
+
   uuid@9.0.1: {}
 
   v8-compile-cache-lib@3.0.1: {}
@@ -3415,6 +3464,8 @@ snapshots:
       strip-ansi: 7.1.0
 
   wrappy@1.0.2: {}
+
+  ws@8.18.1: {}
 
   y18n@5.0.8: {}
 

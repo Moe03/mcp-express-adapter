@@ -37,6 +37,7 @@ export interface MCPClientOptions {
   tools: ToolImpl[]
   serverName?: string
   serverVersion?: string
+  debug?: boolean // Add debug option to control logging
 }
 
 /**
@@ -49,6 +50,7 @@ export class MCPClient {
   private ssePath: string
   private messagePath: string
   private toolDefinitionsMap: Record<string, Tool> // Map tool name to Tool definition
+  private debug: boolean // Flag to control logging
 
   // Store active transports by sessionId
   private activeTransports: Record<string, SSEServerTransport> = {}
@@ -58,6 +60,7 @@ export class MCPClient {
    */
   constructor(options: MCPClientOptions) {
     this.router = Router()
+    this.debug = options.debug ?? false // Default to false if not provided
     this.endpoint = options.endpoint.startsWith('/')
       ? options.endpoint
       : `/${options.endpoint}`
@@ -92,8 +95,8 @@ export class MCPClient {
           inputSchema: validatedTool.inputSchema,
         }
       } catch (e) {
-        console.error(
-          `[MCPClient] Invalid tool definition for "${impl.name}":`,
+        this.logError(
+          `Invalid tool definition for "${impl.name}":`,
           (e as Error).message,
         )
       }
@@ -115,6 +118,29 @@ export class MCPClient {
   }
 
   /**
+   * Log debug messages only when debug is enabled
+   */
+  private logDebug(...args: any[]): void {
+    if (this.debug) {
+      console.log('[MCPClient]', ...args)
+    }
+  }
+
+  /**
+   * Log error messages (always shown)
+   */
+  private logError(...args: any[]): void {
+    console.error('[MCPClient]', ...args)
+  }
+
+  /**
+   * Log info messages (always shown)
+   */
+  private logInfo(...args: any[]): void {
+    console.log('[MCPClient]', ...args)
+  }
+
+  /**
    * Setup request handlers using the SDK Server
    */
   private setupRequestHandlers(tools: ToolImpl[]): void {
@@ -128,12 +154,10 @@ export class MCPClient {
       .passthrough()
 
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      console.log('[MCPClient] Handling tools/list request explicitly')
+      this.logDebug('Handling tools/list request explicitly')
       // Return the tools as an array, conforming to ListToolsResultSchema
       const toolList = Object.values(this.toolDefinitionsMap)
-      console.log(
-        `[MCPClient] Returning ${toolList.length} tools for tools/list`,
-      )
+      this.logDebug(`Returning ${toolList.length} tools for tools/list`)
       return { tools: toolList }
     })
 
@@ -160,13 +184,13 @@ export class MCPClient {
       this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const toolName = request.params.name
         const toolArgs = request.params.arguments || {}
-        console.log(
-          `[MCPClient] Handling tools/call for ${toolName} at endpoint ${this.endpoint}`,
+        this.logDebug(
+          `Handling tools/call for ${toolName} at endpoint ${this.endpoint}`,
         )
 
         const handler = toolHandlerMap.get(toolName)
         if (!handler) {
-          console.error(`[MCPClient] Unknown tool called: ${toolName}`)
+          this.logError(`Unknown tool called: ${toolName}`)
           return {
             content: [
               { type: 'text', text: `Error: Unknown tool '${toolName}'` },
@@ -177,16 +201,18 @@ export class MCPClient {
 
         try {
           const result = await handler(toolArgs)
-          console.log(
-            `[MCPClient] Tool ${toolName} executed. Result:`,
-            JSON.stringify(result).substring(0, 100) + '...',
+          this.logDebug(
+            `Tool ${toolName} executed. Result:`,
+            this.debug
+              ? JSON.stringify(result).substring(0, 100) + '...'
+              : '(hidden, enable debug to view)',
           )
           return {
             content: result.content || [],
             isError: result.isError || false,
           }
         } catch (error) {
-          console.error(`[MCPClient] Error executing tool ${toolName}:`, error)
+          this.logError(`Error executing tool ${toolName}:`, error)
           return {
             content: [
               {
@@ -207,7 +233,7 @@ export class MCPClient {
       })
       .passthrough()
     this.server.setRequestHandler(PromptsListSchema, async () => {
-      console.log('[MCPClient] Handling prompts/list via SDK Server')
+      this.logDebug('Handling prompts/list via SDK Server')
       return { prompts: [] }
     })
   }
@@ -218,8 +244,8 @@ export class MCPClient {
   private setupRoutes(): void {
     // Use the RELATIVE paths defined earlier (/sse, /message)
     this.router.get(this.ssePath, async (req: Request, res: Response) => {
-      console.log(
-        `[MCPClient] SSE connection request to ${req.originalUrl} from ${req.ip}`,
+      this.logDebug(
+        `SSE connection request to ${req.originalUrl} from ${req.ip}`,
       )
 
       res.setHeader('Content-Type', 'text/event-stream')
@@ -233,20 +259,20 @@ export class MCPClient {
       const baseUrl = `${protocol}://${host}`
       // IMPORTANT: Use req.baseUrl which contains the mount path (e.g., /agent-1)
       const msgUrl = `${baseUrl}${req.baseUrl}${this.messagePath}`
-      console.log(
-        `[MCPClient] Calculated message URL for SSE transport: ${msgUrl}`,
-      )
+
+      // This is a critical info log that should always show
+      this.logInfo(`Connect at: ${baseUrl}${req.baseUrl}${this.ssePath}`)
+
+      this.logDebug(`Calculated message URL for SSE transport: ${msgUrl}`)
 
       const transport = new SSEServerTransport(msgUrl, res)
       const sessionId = transport.sessionId
 
       if (sessionId) {
         this.activeTransports[sessionId] = transport
-        console.log(
-          `[MCPClient] SSE Transport created for session: ${sessionId}`,
-        )
+        this.logDebug(`SSE Transport created for session: ${sessionId}`)
       } else {
-        console.error('[MCPClient] Failed to get session ID')
+        this.logError('Failed to get session ID')
         res.status(500).send('Internal Server Error')
         return
       }
@@ -259,18 +285,13 @@ export class MCPClient {
             clearInterval(pingInterval)
           }
         } catch (e) {
-          console.error(
-            `[MCPClient] Error sending ping for session ${sessionId}:`,
-            e,
-          )
+          this.logError(`Error sending ping for session ${sessionId}:`, e)
           clearInterval(pingInterval)
         }
       }, 30000)
 
       req.on('close', () => {
-        console.log(
-          `[MCPClient] SSE connection closed for session ${sessionId}`,
-        )
+        this.logDebug(`SSE connection closed for session ${sessionId}`)
         clearInterval(pingInterval)
         transport.close()
         delete this.activeTransports[sessionId]
@@ -278,10 +299,10 @@ export class MCPClient {
 
       try {
         await this.server.connect(transport)
-        console.log(`[MCPClient] SDK Server connected for session ${sessionId}`)
+        this.logDebug(`SDK Server connected for session ${sessionId}`)
       } catch (err) {
-        console.error(
-          `[MCPClient] Error connecting SDK Server for session ${sessionId}:`,
+        this.logError(
+          `Error connecting SDK Server for session ${sessionId}:`,
           err,
         )
         clearInterval(pingInterval)
@@ -295,28 +316,26 @@ export class MCPClient {
     this.router.post(this.messagePath, async (req: Request, res: Response) => {
       const sessionId = req.query.sessionId as string
       if (!sessionId) {
-        console.error('[MCPClient] Message request missing sessionId')
+        this.logError('Message request missing sessionId')
         res.status(400).send('Missing sessionId')
         return
       }
 
       const transport = this.activeTransports[sessionId]
       if (!transport) {
-        console.error(`[MCPClient] Session not found: ${sessionId}`)
+        this.logError(`Session not found: ${sessionId}`)
         res.status(404).send('Session not found')
         return
       }
 
-      console.log(`[MCPClient] POST message for session: ${sessionId}`)
+      this.logDebug(`POST message for session: ${sessionId}`)
 
       try {
         await transport.handlePostMessage(req, res)
-        console.log(
-          `[MCPClient] SDK Transport handled POST for session ${sessionId}`,
-        )
+        this.logDebug(`SDK Transport handled POST for session ${sessionId}`)
       } catch (error) {
-        console.error(
-          `[MCPClient] Error handlePostMessage for session ${sessionId}:`,
+        this.logError(
+          `Error handlePostMessage for session ${sessionId}:`,
           error,
         )
         if (!res.headersSent) {
