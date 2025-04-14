@@ -661,27 +661,50 @@ interface ToolImpl<T = any> {
 
 ### Header Access in Tools
 
-You can access request headers in your tool implementation to implement authentication:
+You can access request headers within your tool's handler function via the `context.headers` object. This is useful for implementing authentication, passing custom metadata, or other header-based logic.
+
+Headers sent by the client (e.g., using the `mcp-express-adapter` CLI with `--header` or `--headers` flags) are made available in the `context`.
+
+**Example: Passing Authorization Header via CLI**
+
+To call a protected tool that expects an `Authorization: Bearer <token>` header, you can use the CLI adapter like this:
+
+```bash
+# Using --header
+npx mcp-express-adapter@latest --host http://localhost:3000/mcp/sse --header "Authorization: Bearer 000000"
+
+# Using --headers (if passing multiple)
+npx mcp-express-adapter@latest --host http://localhost:3000/mcp/sse --headers "Authorization: Bearer 000000, X-Custom: my-value"
+```
+
+**Example: Tool Reading the Authorization Header**
+
+Here's the `protectedTool` example (from `examples/with-express/src/index.ts`) demonstrating how to read the `Authorization` header from the `context`:
 
 ```typescript
 // Protected tool example with authentication
 const protectedTool = mcpTool({
-  name: 'protected_data',
+  name: 'get_passcode', // or 'protected_data' depending on your example version
   description: 'Get protected data (requires authentication)',
   schema: z.object({
-    dataId: z.string().describe('ID of the protected data to retrieve'),
+    // ... input schema properties
+    name: z.string().describe('The name of the user'), // Example property
   }),
   handler: async (args, context) => {
-    // Check for authorization header
+    // Access the headers from the context object
+    // Node.js automatically lowercases header names
     const authHeader = context?.headers?.authorization || ''
+    console.log(`[ProtectedTool] Auth header received: ${authHeader}`)
 
-    // Validate the token
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Validate the token (e.g., check for a specific Bearer token)
+    const validToken = 'Bearer 000000'
+    if (authHeader !== validToken) {
       throw new Error('Unauthorized: Invalid or missing authentication token')
     }
 
-    // Return data if authorized
-    return `Protected data for ${args.dataId}`
+    // If authorized, proceed with tool logic
+    console.log(`[ProtectedTool] Authorized access for user: ${args.name}`)
+    return `Protected passcode for ${args.name}: 123456` // Return the protected data
   },
 })
 ```
