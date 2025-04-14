@@ -4,6 +4,15 @@
 
 - Sponsored by https://tixaeagents.ai create Text/Voice AI agents in seconds, compatible with MCP servers.
 
+Checklist:
+
+- [x] Express middleware integration SSE support
+- [ ] Websocket integration support (Soon but SSE is working great)
+- [x] Tool implementation with TypeScript support
+- [x] Header-based authorization support
+- [x] Multiple MCP clients on different endpoints
+- [ ] Prompts support (Soon as it's kinda needless)
+
 ## Installation
 
 ```bash
