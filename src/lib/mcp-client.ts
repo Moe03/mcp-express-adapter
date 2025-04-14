@@ -3,14 +3,12 @@ import {
   Request,
   Response,
   RequestHandler,
-  NextFunction,
   raw as expressRaw, // Import raw body parser
 } from 'express'
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js'
 import { Tool, ToolSchema } from '@modelcontextprotocol/sdk/types.js' // Import ToolSchema
 import { z } from 'zod'
-import express from 'express'
 import { AsyncLocalStorage } from 'node:async_hooks' // Import AsyncLocalStorage
 
 // Create an AsyncLocalStorage instance to hold request headers
