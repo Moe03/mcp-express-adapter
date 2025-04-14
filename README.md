@@ -25,7 +25,9 @@ pnpm add mcp-express-adapter@latest
 
 Note: You'll need to authenticate to GitHub Packages if installing from a private repository. See [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#authenticating-with-a-personal-access-token) for more details.
 
-## Simplest express server running MCP client:
+## Get Started
+
+Create an MCP client on an express server (example)
 
 ```typescript
 // examples/with-express/src/super-simple.ts
