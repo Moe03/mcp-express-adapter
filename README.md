@@ -13,6 +13,11 @@ Checklist:
 - [x] Multiple MCP clients on different endpoints
 - [ ] Prompts support (Soon as it's kinda needless)
 
+#### Why
+
+- You can seperately scale your MCP clients from the main LLM service hosting the chat, if you have 100 people opening playwright, brave, etc MCPs directly with npx on a single server that could make easily eat up a lot of memory & bottleneck performance.
+- Default way of deploying, updating & maintaining many MCP instances is annoying, this is trying to simplify it.
+
 ## Installation
 
 ```bash
@@ -831,10 +836,6 @@ npx mcp-express-adapter --host http://localhost:3000/mcp/sse --headers "Authoriz
 
 - Make sure to apply exress.json() AFTER the app.use MCP middleware
 - Webscokets are not yet tested enough.
-
-### Why
-
-- Default way of deploying MCP servers is annoying, this is trying to simplify it for NodeJS applications
 
 ## Contributors
 
