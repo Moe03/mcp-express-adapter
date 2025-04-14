@@ -127,6 +127,15 @@ export class MCPClient {
 
     this.setupRequestHandlers(options.tools)
     this.setupRoutes()
+
+    // Log the connection information immediately upon instantiation
+    const port = process.env.PORT || '3000'
+    this.logInfo(
+      `Connect at: http://localhost:${port}${this.endpoint}${this.ssePath}`,
+    )
+    this.logInfo(
+      `Run with: npx -y mcp-express-adapter --host http://localhost:${port}${this.endpoint}${this.ssePath}`,
+    )
   }
 
   /**
@@ -203,7 +212,9 @@ export class MCPClient {
    * Log info messages (always shown)
    */
   private logInfo(...args: any[]): void {
-    console.log('[MCPClient]', ...args)
+    if (this.debug) {
+      console.log('[MCPClient]', ...args)
+    }
   }
 
   /**
@@ -337,6 +348,12 @@ export class MCPClient {
 
       // This is a critical info log that should always show
       this.logInfo(`Connect at: ${baseUrl}${req.baseUrl}${this.ssePath}`)
+
+      // Log the command to run the MCP client
+      const port = host.split(':')[1] || '3000'
+      this.logInfo(
+        `Run with: npx -y mcp-express-adapter --host http://localhost:${port}${req.baseUrl}${this.ssePath}`,
+      )
 
       this.logDebug(`Calculated message URL for SSE transport: ${msgUrl}`)
 
