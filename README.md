@@ -241,8 +241,7 @@ async function runLangchainMcpExample() {
     },
   })
 
-  //   try {
-  console.log('Loading tools from MCP server via express-adapter...')
+  console.log('Loading tools from MCP server via express adapter...')
   // Keep getTools call with options
   const tools = (await Promise.race([
     mcpClient.getTools(),
@@ -442,13 +441,41 @@ const greetingTool = mcpTool({
   },
 })
 
+// Add a protected tool that checks for authentication
+const protectedTool = mcpTool({
+  name: 'get_passcode',
+  description: 'Get the passcode for the user',
+  schema: z.object({
+    name: z.string().describe('The name of the user'),
+  }),
+  // Implement authentication check in the handler
+  handler: async (args, context) => {
+    console.log(`[ProtectedTool] Called with name: ${args.name}`)
+
+    // Check for authorization header
+    const authHeader = context?.headers?.authorization || ''
+    console.log(context)
+    console.log(`[ProtectedTool] Auth header: ${authHeader}`)
+
+    // Check for bearer token that matches "000000"
+    const validToken = 'Bearer 000000'
+    if (!authHeader || authHeader !== validToken) {
+      // Return error for unauthorized access
+      throw new Error('Unauthorized: Invalid or missing authentication token')
+    }
+
+    // If authorized, return the protected data
+    return `Protected data for ID: ${args.name}`
+  },
+})
+
 // if true will show debug logs, to disable set NODE_ENV=production
 const debugMode = process.env.NODE_ENV === 'development'
 
 // Create MCP client
 const mcpClient = new MCPClient({
   endpoint: '/mcp',
-  tools: [weatherTool, calculatorTool, listTool, greetingTool],
+  tools: [weatherTool, calculatorTool, listTool, greetingTool, protectedTool],
   serverName: 'my-mcp-server',
   serverVersion: '1.0.0',
   debug: debugMode, // Enable debug logs only when --debug flag is passed
@@ -475,11 +502,10 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000
 app.listen(PORT, () => {
   const baseUrl = `http://localhost:${PORT}`
-  console.log(`MCP Server running on port ${PORT}`)
 
   // Get the SSE endpoint URL using the helper method
   const sseEndpoint = mcpClient.getSSEEndpoint(baseUrl)
-  console.log(`Connect at: ${sseEndpoint}`)
+  console.log(`MCP Client SSE Endpoint: ${sseEndpoint}`)
 
   console.log(
     `Debug mode: ${debugMode ? 'enabled will show debug logs, to disable set NODE_ENV=production' : 'disabled will not log anything.'}`,
@@ -617,7 +643,13 @@ interface ToolImpl<T = any> {
     properties: Record<string, any>
     required?: string[]
   }
-  handler: (args: T) => Promise<{
+  handler: (
+    args: T,
+    context?: {
+      headers?: Record<string, string> // Request headers accessible here
+      [key: string]: any
+    },
+  ) => Promise<{
     content: Array<
       | { type: string; text?: string }
       | { type: string; data?: string; mimeType?: string }
@@ -625,6 +657,33 @@ interface ToolImpl<T = any> {
     isError?: boolean
   }>
 }
+```
+
+### Header Access in Tools
+
+You can access request headers in your tool implementation to implement authentication:
+
+```typescript
+// Protected tool example with authentication
+const protectedTool = mcpTool({
+  name: 'protected_data',
+  description: 'Get protected data (requires authentication)',
+  schema: z.object({
+    dataId: z.string().describe('ID of the protected data to retrieve'),
+  }),
+  handler: async (args, context) => {
+    // Check for authorization header
+    const authHeader = context?.headers?.authorization || ''
+
+    // Validate the token
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new Error('Unauthorized: Invalid or missing authentication token')
+    }
+
+    // Return data if authorized
+    return `Protected data for ${args.dataId}`
+  },
+})
 ```
 
 ## Advanced Example
@@ -721,7 +780,17 @@ curl -N http://localhost:3000/mcp/sse
 Or use the MCP command-line client:
 
 ```bash
-npx express-mcp --host http://localhost:3000/mcp
+# Basic usage
+npx mcp-express-adapter --host http://localhost:3000/mcp/sse
+
+# With a single header
+npx mcp-express-adapter --host http://localhost:3000/mcp/sse --header "Authorization: Bearer token123"
+
+# With multiple headers (option 1: repeating --header)
+npx mcp-express-adapter --host http://localhost:3000/mcp/sse --header "Authorization: Bearer token123" --header "X-Custom: Value"
+
+# With multiple headers (option 2: comma-separated list)
+npx mcp-express-adapter --host http://localhost:3000/mcp/sse --headers "Authorization: Bearer token123, X-Custom: Value"
 ```
 
 ### Common issues

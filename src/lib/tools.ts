@@ -14,6 +14,12 @@ type McpResponse = {
   isError?: boolean
 }
 
+// Type for context parameter
+type ToolContext = {
+  headers?: Record<string, string>
+  [key: string]: any
+}
+
 /**
  * Creates a type-safe MCP tool with input and output validation using Zod schemas.
  *
@@ -36,12 +42,16 @@ export function mcpTool<
   outputSchema?: TOutput
   handler: (
     args: z.infer<TInput>,
+    context?: ToolContext,
   ) => Promise<TOutput extends ZodType ? z.infer<TOutput> : string>
 }): {
   name: string
   description: string
   inputSchema: Tool['inputSchema']
-  handler: (args: z.infer<TInput>) => Promise<McpResponse>
+  handler: (
+    args: z.infer<TInput>,
+    context?: ToolContext,
+  ) => Promise<McpResponse>
 } {
   // Convert input Zod schema to JSON Schema
   const inputJsonSchema = zodToJsonSchema(schema, {
@@ -73,13 +83,13 @@ export function mcpTool<
     name,
     description,
     inputSchema: enhancedInputSchema as Tool['inputSchema'],
-    handler: async (args) => {
+    handler: async (args, context) => {
       // Validate args against schema before passing to handler
       try {
         const validatedArgs = schema.parse(args)
 
-        // Call the handler with validated args
-        const result = await handler(validatedArgs)
+        // Call the handler with validated args and context
+        const result = await handler(validatedArgs, context)
 
         // Validate output if schema provided
         if (outputSchema) {

@@ -50,7 +50,12 @@ async function main() {
       type: 'array',
       string: true,
       description:
-        'Headers to be added, e.g. --header "Authorization: Bearer <token>"',
+        'Headers to be added (can be repeated), e.g. --header "Authorization: Bearer <token>" --header "X-Custom: Value"',
+    })
+    .option('headers', {
+      type: 'string',
+      description:
+        'Headers as comma-separated list, e.g. --headers "Authorization: Bearer <token>, X-Custom: Value"',
     })
     .option('debug', {
       // Retain debug option, maps to logLevel
@@ -73,7 +78,18 @@ async function main() {
   // Extract options after parsing
   const sseUrl = argv.host as string
   const cliHeaders = (argv.header as string[] | undefined) || []
-  const headers = parseHeaders(cliHeaders, logger)
+
+  // Handle comma-separated headers from --headers option
+  const csvHeaders: string[] = []
+  if (argv.headers) {
+    const headerStr = argv.headers as string
+    const splitHeaders = headerStr.split(',').map((h) => h.trim())
+    csvHeaders.push(...splitHeaders)
+  }
+
+  // Combine headers from both sources
+  const allHeaders = [...cliHeaders, ...csvHeaders]
+  const headers = parseHeaders(allHeaders, logger)
 
   // Variables for cleanup
   let sseClient: Client | null = null

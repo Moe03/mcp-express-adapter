@@ -11,6 +11,10 @@ import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js'
 import { Tool, ToolSchema } from '@modelcontextprotocol/sdk/types.js' // Import ToolSchema
 import { z } from 'zod'
 import express from 'express'
+import { AsyncLocalStorage } from 'node:async_hooks' // Import AsyncLocalStorage
+
+// Create an AsyncLocalStorage instance to hold request headers
+const requestStorage = new AsyncLocalStorage<Record<string, string>>()
 
 /**
  * MCPClient tool implementation type
@@ -20,7 +24,13 @@ export interface ToolImpl<T = any> {
   description: string
   // Use the correct SDK key: inputSchema (camelCase)
   inputSchema: Tool['inputSchema']
-  handler: (args: T) => Promise<{
+  handler: (
+    args: T,
+    context?: {
+      headers?: Record<string, string>
+      [key: string]: any
+    },
+  ) => Promise<{
     content: Array<
       | { type: string; text?: string }
       | { type: string; data?: string; mimeType?: string }
@@ -256,7 +266,15 @@ export class MCPClient {
         }
 
         try {
-          const result = await handler(toolArgs)
+          // Retrieve headers from AsyncLocalStorage
+          const headers = requestStorage.getStore() || {}
+          const context = {
+            headers: headers as Record<string, string>,
+          }
+          this.logDebug(`[tools/call] Context from AsyncLocalStorage:`, context)
+
+          // Pass both args and context to the handler
+          const result = await handler(toolArgs, context)
           this.logDebug(
             `Tool ${toolName} executed. Result:`,
             this.debug
@@ -267,13 +285,14 @@ export class MCPClient {
             content: result.content || [],
             isError: result.isError || false,
           }
-        } catch (error) {
+        } catch (error: any) {
           this.logError(`Error executing tool ${toolName}:`, error)
           return {
             content: [
               {
                 type: 'text',
-                text: `Error executing tool ${toolName}: ${error}`,
+                // Use error.message for a cleaner error response
+                text: `Error executing tool ${toolName}: ${error.message || error}`,
               },
             ],
             isError: true,
@@ -385,10 +404,21 @@ export class MCPClient {
       }
 
       this.logDebug(`POST message for session: ${sessionId}`)
+      // Node.js automatically lowercases header names.
+      const headers = req.headers as Record<string, string> // Cast headers
+      this.logDebug(`Headers received for session ${sessionId}:`, headers)
 
       try {
-        await transport.handlePostMessage(req, res)
-        this.logDebug(`SDK Transport handled POST for session ${sessionId}`)
+        // Run the message handling within the AsyncLocalStorage context
+        await requestStorage.run(headers, () => {
+          this.logDebug(
+            `Running handlePostMessage in AsyncLocalStorage context for session ${sessionId}`,
+          )
+          return transport.handlePostMessage(req, res)
+        })
+        this.logDebug(
+          `SDK Transport handled POST for session ${sessionId} (after AsyncLocalStorage)`,
+        )
       } catch (error) {
         this.logError(
           `Error handlePostMessage for session ${sessionId}:`,

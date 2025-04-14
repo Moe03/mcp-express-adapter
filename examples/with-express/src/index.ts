@@ -119,13 +119,41 @@ const greetingTool = mcpTool({
   },
 })
 
+// Add a protected tool that checks for authentication
+const protectedTool = mcpTool({
+  name: 'get_passcode',
+  description: 'Get the passcode for the user',
+  schema: z.object({
+    name: z.string().describe('The name of the user'),
+  }),
+  // Implement authentication check in the handler
+  handler: async (args, context) => {
+    console.log(`[ProtectedTool] Called with name: ${args.name}`)
+
+    // Check for authorization header
+    const authHeader = context?.headers?.authorization || ''
+    console.log(context)
+    console.log(`[ProtectedTool] Auth header: ${authHeader}`)
+
+    // Check for bearer token that matches "000000"
+    const validToken = 'Bearer 000000'
+    if (!authHeader || authHeader !== validToken) {
+      // Return error for unauthorized access
+      throw new Error('Unauthorized: Invalid or missing authentication token')
+    }
+
+    // If authorized, return the protected data
+    return `Protected data for ID: ${args.name}`
+  },
+})
+
 // if true will show debug logs, to disable set NODE_ENV=production
 const debugMode = process.env.NODE_ENV === 'development'
 
 // Create MCP client
 const mcpClient = new MCPClient({
   endpoint: '/mcp',
-  tools: [weatherTool, calculatorTool, listTool, greetingTool],
+  tools: [weatherTool, calculatorTool, listTool, greetingTool, protectedTool],
   serverName: 'my-mcp-server',
   serverVersion: '1.0.0',
   debug: debugMode, // Enable debug logs only when --debug flag is passed
@@ -152,11 +180,10 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000
 app.listen(PORT, () => {
   const baseUrl = `http://localhost:${PORT}`
-  console.log(`MCP Server running on port ${PORT}`)
 
   // Get the SSE endpoint URL using the helper method
   const sseEndpoint = mcpClient.getSSEEndpoint(baseUrl)
-  console.log(`Connect at: ${sseEndpoint}`)
+  console.log(`MCP Client SSE Endpoint: ${sseEndpoint}`)
 
   console.log(
     `Debug mode: ${debugMode ? 'enabled will show debug logs, to disable set NODE_ENV=production' : 'disabled will not log anything.'}`,
