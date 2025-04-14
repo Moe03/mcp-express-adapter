@@ -22,7 +22,7 @@ Note: You'll need to authenticate to GitHub Packages if installing from a privat
 // examples/with-express/src/super-simple.ts
 import express from 'express'
 import cors from 'cors'
-import {  MCPClient, mcpTool  } from 'mcp-express-adapter'
+import { MCPClient, mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 
 // Create Express app
@@ -64,7 +64,6 @@ app.listen(PORT, () => {
   console.log(`✨ Super Simple MCP Server running!`)
   console.log(`🔗 Connect at: http://localhost:${PORT}/mcp/sse`)
 })
-
 ```
 
 ## In the terminal make sure the server is running:
@@ -203,7 +202,6 @@ app.listen(PORT, () => {
   console.log(`Calculator MCP: http://localhost:${PORT}/calculator-mcp/sse`)
   console.log(`Time MCP: http://localhost:${PORT}/time-mcp/sse`)
 })
-
 ```
 
 ## Usage with Langchain + Langgraph
@@ -312,7 +310,6 @@ async function runLangchainMcpExample() {
 }
 
 runLangchainMcpExample()
-
 ```
 
 ## Examples
@@ -325,7 +322,7 @@ Here's a complete example using the `mcpTool` helper for creating type-safe MCP 
 // examples/with-express/src/index.ts
 import express from 'express'
 import cors from 'cors'
-import {  MCPClient, mcpTool  } from 'mcp-express-adapter'
+import { MCPClient, mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 import dotenv from 'dotenv'
 
@@ -452,28 +449,25 @@ const protectedTool = mcpTool({
     name: z.string().describe('The name of the user'),
   }),
   // Implement authentication check in the handler
-  handler: async (
-    args,
-    context
-  ) => {
+  handler: async (args, context) => {
     console.log(`[ProtectedTool] Called with name: ${args.name}`)
-    
+
     // Check for authorization header
-    const authHeader = context?.headers?.authorization || '';
+    const authHeader = context?.headers?.authorization || ''
     console.log(context)
-    console.log(`[ProtectedTool] Auth header: ${authHeader}`);
-    
+    console.log(`[ProtectedTool] Auth header: ${authHeader}`)
+
     // Check for bearer token that matches "000000"
-    const validToken = "Bearer 000000";
+    const validToken = 'Bearer 000000'
     if (!authHeader || authHeader !== validToken) {
       // Return error for unauthorized access
-      throw new Error('Unauthorized: Invalid or missing authentication token');
+      throw new Error('Unauthorized: Invalid or missing authentication token')
     }
-    
+
     // If authorized, return the protected data
-    return `Protected data for ID: ${args.name}`;
+    return `Protected data for ID: ${args.name}`
   },
-});
+})
 
 // if true will show debug logs, to disable set NODE_ENV=production
 const debugMode = process.env.NODE_ENV === 'development'
@@ -517,7 +511,6 @@ app.listen(PORT, () => {
     `Debug mode: ${debugMode ? 'enabled will show debug logs, to disable set NODE_ENV=production' : 'disabled will not log anything.'}`,
   )
 })
-
 ```
 
 You can run this example with:
@@ -534,7 +527,7 @@ Here's how to create a simple tool with the `mcpTool` helper:
 
 ```typescript
 // examples/with-express/src/tool-example.ts
-import {  mcpTool  } from 'mcp-express-adapter'
+import { mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 
 /**
@@ -619,7 +612,6 @@ const nonTypesafeTool = {
 }
 
 export { weatherTool, greetingTool, nonTypesafeTool }
-
 ```
 
 ## API Reference
@@ -652,11 +644,11 @@ interface ToolImpl<T = any> {
     required?: string[]
   }
   handler: (
-    args: T, 
-    context?: { 
+    args: T,
+    context?: {
       headers?: Record<string, string> // Request headers accessible here
       [key: string]: any
-    }
+    },
   ) => Promise<{
     content: Array<
       | { type: string; text?: string }
@@ -669,29 +661,52 @@ interface ToolImpl<T = any> {
 
 ### Header Access in Tools
 
-You can access request headers in your tool implementation to implement authentication:
+You can access request headers within your tool's handler function via the `context.headers` object. This is useful for implementing authentication, passing custom metadata, or other header-based logic.
+
+Headers sent by the client (e.g., using the `mcp-express-adapter` CLI with `--header` or `--headers` flags) are made available in the `context`.
+
+**Example: Passing Authorization Header via CLI**
+
+To call a protected tool that expects an `Authorization: Bearer <token>` header, you can use the CLI adapter like this:
+
+```bash
+# Using --header
+npx mcp-express-adapter@latest --host http://localhost:3000/mcp/sse --header "Authorization: Bearer 000000"
+
+# Using --headers (if passing multiple)
+npx mcp-express-adapter@latest --host http://localhost:3000/mcp/sse --headers "Authorization: Bearer 000000, X-Custom: my-value"
+```
+
+**Example: Tool Reading the Authorization Header**
+
+Here's the `protectedTool` example (from `examples/with-express/src/index.ts`) demonstrating how to read the `Authorization` header from the `context`:
 
 ```typescript
 // Protected tool example with authentication
 const protectedTool = mcpTool({
-  name: 'protected_data',
+  name: 'get_passcode', // or 'protected_data' depending on your example version
   description: 'Get protected data (requires authentication)',
   schema: z.object({
-    dataId: z.string().describe('ID of the protected data to retrieve'),
+    // ... input schema properties
+    name: z.string().describe('The name of the user'), // Example property
   }),
   handler: async (args, context) => {
-    // Check for authorization header
-    const authHeader = context?.headers?.authorization || '';
-    
-    // Validate the token
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new Error('Unauthorized: Invalid or missing authentication token');
+    // Access the headers from the context object
+    // Node.js automatically lowercases header names
+    const authHeader = context?.headers?.authorization || ''
+    console.log(`[ProtectedTool] Auth header received: ${authHeader}`)
+
+    // Validate the token (e.g., check for a specific Bearer token)
+    const validToken = 'Bearer 000000'
+    if (authHeader !== validToken) {
+      throw new Error('Unauthorized: Invalid or missing authentication token')
     }
-    
-    // Return data if authorized
-    return `Protected data for ${args.dataId}`;
+
+    // If authorized, proceed with tool logic
+    console.log(`[ProtectedTool] Authorized access for user: ${args.name}`)
+    return `Protected passcode for ${args.name}: 123456` // Return the protected data
   },
-});
+})
 ```
 
 ## Advanced Example
