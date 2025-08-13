@@ -13,8 +13,11 @@ Checklist:
 - [x] Multiple MCP clients on different endpoints
 - [ ] Prompts support (Soon as it's kinda needless)
 
-## Installation
+#### Why
+- You can't seperately scale up or down your MCP clients (and group some together if they are all light weight) from the main LLM service hosting the chat, if you have 100 people opening playwright, brave, etc MCPs directly with npx on a single server that could easily eat up a lot of memory & bottleneck performance.
+- Default way of deploying, updating & maintaining many MCP servers is annoying, this is trying to simplify it.
 
+## Installation
 ```bash
 npm install mcp-express-adapter@latest
 # or
@@ -25,13 +28,15 @@ pnpm add mcp-express-adapter@latest
 
 Note: You'll need to authenticate to GitHub Packages if installing from a private repository. See [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#authenticating-with-a-personal-access-token) for more details.
 
-## Simplest express server running MCP client:
+## Get Started
+
+Create an MCP client on an express server (example)
 
 ```typescript
 // examples/with-express/src/super-simple.ts
 import express from 'express'
 import cors from 'cors'
-import {  MCPClient, mcpTool  } from 'mcp-express-adapter'
+import { MCPClient, mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 
 // Create Express app
@@ -73,7 +78,6 @@ app.listen(PORT, () => {
   console.log(`✨ Super Simple MCP Server running!`)
   console.log(`🔗 Connect at: http://localhost:${PORT}/mcp/sse`)
 })
-
 ```
 
 ## In the terminal make sure the server is running:
@@ -212,7 +216,6 @@ app.listen(PORT, () => {
   console.log(`Calculator MCP: http://localhost:${PORT}/calculator-mcp/sse`)
   console.log(`Time MCP: http://localhost:${PORT}/time-mcp/sse`)
 })
-
 ```
 
 ## Usage with Langchain + Langgraph
@@ -321,7 +324,6 @@ async function runLangchainMcpExample() {
 }
 
 runLangchainMcpExample()
-
 ```
 
 ## Examples
@@ -334,7 +336,7 @@ Here's a complete example using the `mcpTool` helper for creating type-safe MCP 
 // examples/with-express/src/index.ts
 import express from 'express'
 import cors from 'cors'
-import {  MCPClient, mcpTool  } from 'mcp-express-adapter'
+import { MCPClient, mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 import dotenv from 'dotenv'
 
@@ -523,7 +525,6 @@ app.listen(PORT, () => {
     `Debug mode: ${debugMode ? 'enabled will show debug logs, to disable set NODE_ENV=production' : 'disabled will not log anything.'}`,
   )
 })
-
 ```
 
 You can run this example with:
@@ -540,7 +541,7 @@ Here's how to create a simple tool with the `mcpTool` helper:
 
 ```typescript
 // examples/with-express/src/tool-example.ts
-import {  mcpTool  } from 'mcp-express-adapter'
+import { mcpTool } from 'mcp-express-adapter'
 import { z } from 'zod'
 
 /**
@@ -625,7 +626,6 @@ const nonTypesafeTool = {
 }
 
 export { weatherTool, greetingTool, nonTypesafeTool }
-
 ```
 
 ## API Reference
@@ -834,10 +834,6 @@ npx mcp-express-adapter --host http://localhost:3000/mcp/sse --headers "Authoriz
 
 - Make sure to apply exress.json() AFTER the app.use MCP middleware
 - Webscokets are not yet tested enough.
-
-### Why
-
-- Default way of deploying MCP servers is annoying, this is trying to simplify it for NodeJS applications
 
 ## Contributors
 

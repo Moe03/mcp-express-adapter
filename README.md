@@ -14,10 +14,12 @@ Checklist:
 - [ ] Prompts support (Soon as it's kinda needless)
 
 #### Why
+
 - You can't seperately scale up or down your MCP clients (and group some together if they are all light weight) from the main LLM service hosting the chat, if you have 100 people opening playwright, brave, etc MCPs directly with npx on a single server that could easily eat up a lot of memory & bottleneck performance.
 - Default way of deploying, updating & maintaining many MCP servers is annoying, this is trying to simplify it.
 
 ## Installation
+
 ```bash
 npm install mcp-express-adapter@latest
 # or
